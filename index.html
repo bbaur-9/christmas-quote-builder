@@ -328,7 +328,6 @@
     text-align:center;
     overflow:hidden;
   }
-  .photo-box img{width:100%;height:100%;object-fit:cover;display:block;}
 
   table.price-table{width:100%;border-collapse:collapse;font-size:13px;}
   table.price-table thead th{
@@ -732,10 +731,33 @@ $('photoInput').addEventListener('change', (e)=>{
 });
 
 // ---------- Text fields ----------
-['clientName','propAddress','clientContact','propDate','propNum','includedText','termsText'].forEach(id=>{
+['clientName','propAddress','propDate','propNum','includedText','termsText'].forEach(id=>{
   $(id).addEventListener('input', updatePreview);
 });
 $('sigToggle').addEventListener('change', updatePreview);
+
+// ---------- Phone auto-formatting ----------
+// Auto-inserts dashes as a phone number is typed (e.g. 919-555-0134).
+// Leaves the field alone if it looks like an email (contains letters or @),
+// since this field accepts either.
+function formatPhoneNumber(value){
+  if(/[a-zA-Z@]/.test(value)) return value;
+  const digits = value.replace(/\D/g,'').slice(0,10);
+  const len = digits.length;
+  if(len === 0) return '';
+  if(len < 4) return digits;
+  if(len < 7) return `${digits.slice(0,3)}-${digits.slice(3)}`;
+  return `${digits.slice(0,3)}-${digits.slice(3,6)}-${digits.slice(6)}`;
+}
+$('clientContact').addEventListener('input', e=>{
+  const cursorAtEnd = e.target.selectionEnd === e.target.value.length;
+  const formatted = formatPhoneNumber(e.target.value);
+  if(formatted !== e.target.value){
+    e.target.value = formatted;
+    if(cursorAtEnd) e.target.setSelectionRange(formatted.length, formatted.length);
+  }
+  updatePreview();
+});
 
 // ---------- Roofline ----------
 $('rooflineDesc').addEventListener('input', e=>{ roofline.desc = e.target.value; updatePreview(); });
@@ -751,10 +773,19 @@ function updatePreview(){
   $('pvNum').textContent = 'Proposal #: ' + ($('propNum').value.trim() || '[0000]');
 
   // photo
+  // Uses a CSS background-image (not an <img> with object-fit) because
+  // html2canvas does not reliably support object-fit: cover — it can
+  // render the photo at full natural size during PDF export even though
+  // it looks correctly cropped on screen. background-size:cover is
+  // handled correctly by html2canvas.
   if(photoDataUrl){
-    $('pvPhotoBox').innerHTML = `<img src="${photoDataUrl}">`;
+    $('pvPhotoBox').style.backgroundImage = `url("${photoDataUrl}")`;
+    $('pvPhotoBox').style.backgroundSize = 'cover';
+    $('pvPhotoBox').style.backgroundPosition = 'center';
+    $('pvPhotoBox').textContent = '';
   } else {
-    $('pvPhotoBox').innerHTML = '[ Insert property photo / lighting rendering ]';
+    $('pvPhotoBox').style.backgroundImage = 'none';
+    $('pvPhotoBox').textContent = '[ Insert property photo / lighting rendering ]';
   }
 
   // items
