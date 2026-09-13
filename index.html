@@ -318,6 +318,7 @@
     border:none;
     background:var(--frost);
     height:120px;
+    width:100%;
     display:flex;
     align-items:center;
     justify-content:center;
@@ -328,6 +329,7 @@
     text-align:center;
     overflow:hidden;
   }
+  .photo-box img{width:100%;height:100%;display:block;}
 
   table.price-table{width:100%;border-collapse:collapse;font-size:13px;}
   table.price-table thead th{
@@ -714,12 +716,59 @@ $('removePhotoBtn').addEventListener('click', (e)=>{
   $('photoActions').style.display = 'none';
   updatePreview();
 });
+const PHOTO_ASPECT = 3.6; // width / height — matches the photo box shape
+
+// Pre-crops an uploaded photo to an exact target aspect ratio using a
+// canvas, so the stored image data already has the right shape.
+// This avoids relying on CSS cropping (object-fit / background-size)
+// at display time, which html2canvas does not reliably support —
+// the PDF export was rendering photos at full uncropped size because
+// of that. A plain, pre-cropped image just scales, which every
+// renderer handles correctly.
+function cropImageToAspect(imgSrc, aspect){
+  return new Promise((resolve, reject)=>{
+    const img = new Image();
+    img.onload = ()=>{
+      const srcRatio = img.width / img.height;
+      let sx, sy, sw, sh;
+      if(srcRatio > aspect){
+        // source is wider than target — crop left/right
+        sh = img.height;
+        sw = sh * aspect;
+        sy = 0;
+        sx = (img.width - sw) / 2;
+      } else {
+        // source is taller than target — crop top/bottom
+        sw = img.width;
+        sh = sw / aspect;
+        sx = 0;
+        sy = (img.height - sh) / 2;
+      }
+      const targetWidth = 1200;
+      const targetHeight = Math.round(targetWidth / aspect);
+      const canvas = document.createElement('canvas');
+      canvas.width = targetWidth;
+      canvas.height = targetHeight;
+      const ctx = canvas.getContext('2d');
+      ctx.drawImage(img, sx, sy, sw, sh, 0, 0, targetWidth, targetHeight);
+      resolve(canvas.toDataURL('image/jpeg', 0.9));
+    };
+    img.onerror = reject;
+    img.src = imgSrc;
+  });
+}
+
 $('photoInput').addEventListener('change', (e)=>{
   const file = e.target.files[0];
   if(!file) return;
   const reader = new FileReader();
-  reader.onload = ev=>{
-    photoDataUrl = ev.target.result;
+  reader.onload = async ev=>{
+    const rawDataUrl = ev.target.result;
+    try{
+      photoDataUrl = await cropImageToAspect(rawDataUrl, PHOTO_ASPECT);
+    }catch(err){
+      photoDataUrl = rawDataUrl; // fallback if cropping fails for any reason
+    }
     $('photoPreviewImg').src = photoDataUrl;
     $('photoPreviewImg').style.display = 'block';
     $('photoPrompt').style.display = 'none';
@@ -779,20 +828,20 @@ function updatePreview(){
   $('pvNum').textContent = 'Proposal #: ' + ($('propNum').value.trim() || '[0000]');
 
   // photo
-  // Uses a CSS background-image (not an <img> with object-fit) because
-  // html2canvas does not reliably support object-fit: cover — it can
-  // render the photo at full natural size during PDF export even though
-  // it looks correctly cropped on screen. background-size:cover is
-  // handled correctly by html2canvas.
+  // The uploaded photo is pre-cropped to the exact box aspect ratio at
+  // upload time (see cropImageToAspect), so it's rendered here as a
+  // plain <img> that just scales to fill — no CSS-level cropping
+  // (object-fit / background-size) needed, which is what made this
+  // unreliable in the PDF export before.
   if(photoDataUrl){
-    $('pvPhotoBox').style.backgroundImage = `url("${photoDataUrl}")`;
-    $('pvPhotoBox').style.backgroundSize = 'cover';
-    $('pvPhotoBox').style.backgroundPosition = 'center';
-    $('pvPhotoBox').textContent = '';
+    $('pvPhotoBox').style.backgroundImage = 'none';
+    $('pvPhotoBox').innerHTML = `<img src="${photoDataUrl}">`;
   } else {
     $('pvPhotoBox').style.backgroundImage = 'none';
+    $('pvPhotoBox').innerHTML = '';
     $('pvPhotoBox').textContent = '[ Insert property photo / lighting rendering ]';
   }
+  fitPhotoBox();
 
   // items
   let subtotal = 0;
@@ -896,6 +945,7 @@ $('downloadBtn').addEventListener('click', async ()=>{
     const pageHeight = pdf.internal.pageSize.getHeight();
 
     fitLightsStrip();
+    fitPhotoBox();
 
     const pageNodes = [$('pdfPage1'), $('pdfPage2')];
 
@@ -954,6 +1004,20 @@ function fitLightsStrip(){
 window.addEventListener('resize', fitLightsStrip);
 window.addEventListener('load', fitLightsStrip);
 
+// Keeps the property-photo box's actual rendered height locked to the
+// same aspect ratio the uploaded photo was pre-cropped to, so the
+// image is scaled (never stretched or squished) — matters for both
+// the live preview and the PDF capture.
+function fitPhotoBox(){
+  const el = document.getElementById('pvPhotoBox');
+  if(!el) return;
+  const containerWidth = el.getBoundingClientRect().width;
+  if(!containerWidth) return;
+  el.style.height = (containerWidth / PHOTO_ASPECT).toFixed(2) + 'px';
+}
+window.addEventListener('resize', fitPhotoBox);
+window.addEventListener('load', fitPhotoBox);
+
 // ---------- Init ----------
 $('propDate').value = todayISO();
 $('includedText').value = DEFAULT_INCLUDED.join('\n');
@@ -961,6 +1025,7 @@ $('termsText').value = DEFAULT_TERMS.join('\n');
 renderItemRows();
 updatePreview();
 requestAnimationFrame(fitLightsStrip);
+requestAnimationFrame(fitPhotoBox);
 </script>
 </body>
 </html>
