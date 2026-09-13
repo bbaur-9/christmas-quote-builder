@@ -243,20 +243,31 @@
     overflow-y:auto;
   }
   #quoteDoc{
-    background:#fff;
     width:100%;
     max-width:700px;
-    padding:0 46px 44px 46px;
-    box-shadow:0 10px 40px rgba(0,0,0,0.35);
     font-family:'Helvetica Neue', Helvetica, Arial, sans-serif;
     color:#1a1a1a;
-    border-radius:0 0 6px 6px;
+  }
+  .pdf-page{
+    background:#fff;
+    padding:36px 46px 44px 46px;
+    box-shadow:0 10px 40px rgba(0,0,0,0.35);
+    border-radius:6px;
     overflow:hidden;
     position:relative;
+    margin-bottom:28px;
+  }
+  .page-label{
+    text-align:center;
+    color:rgba(255,255,255,0.55);
+    font-size:11px;
+    letter-spacing:1.5px;
+    text-transform:uppercase;
+    margin:-16px 0 10px 0;
   }
   .lights-strip{
     height:50px;
-    margin:0 -46px 18px -46px;
+    margin:-36px -46px 18px -46px;
     background-color:#fff;
     background-image:url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyMDAgNTYiPgogIDxwYXRoIGQ9Ik0gMC4wMCwyOC4wMCBMIDIuMDAsMjYuMzcgTCA0LjAwLDI0Ljc3IEwgNi4wMCwyMy4yMSBMIDguMDAsMjEuNzQgTCAxMC4wMCwyMC4zNiBMIDEyLjAwLDE5LjEwIEwgMTQuMDAsMTcuOTggTCAxNi4wMCwxNy4wMiBMIDE4LjAwLDE2LjI0IEwgMjAuMDAsMTUuNjQgTCAyMi4wMCwxNS4yMyBMIDI0LjAwLDE1LjAzIEwgMjYuMDAsMTUuMDMgTCAyOC4wMCwxNS4yMyBMIDMwLjAwLDE1LjY0IEwgMzIuMDAsMTYuMjQgTCAzNC4wMCwxNy4wMiBMIDM2LjAwLDE3Ljk4IEwgMzguMDAsMTkuMTAgTCA0MC4wMCwyMC4zNiBMIDQyLjAwLDIxLjc0IEwgNDQuMDAsMjMuMjEgTCA0Ni4wMCwyNC43NyBMIDQ4LjAwLDI2LjM3IEwgNTAuMDAsMjguMDAgTCA1Mi4wMCwyOS42MyBMIDU0LjAwLDMxLjIzIEwgNTYuMDAsMzIuNzkgTCA1OC4wMCwzNC4yNiBMIDYwLjAwLDM1LjY0IEwgNjIuMDAsMzYuOTAgTCA2NC4wMCwzOC4wMiBMIDY2LjAwLDM4Ljk4IEwgNjguMDAsMzkuNzYgTCA3MC4wMCw0MC4zNiBMIDcyLjAwLDQwLjc3IEwgNzQuMDAsNDAuOTcgTCA3Ni4wMCw0MC45NyBMIDc4LjAwLDQwLjc3IEwgODAuMDAsNDAuMzYgTCA4Mi4wMCwzOS43NiBMIDg0LjAwLDM4Ljk4IEwgODYuMDAsMzguMDIgTCA4OC4wMCwzNi45MCBMIDkwLjAwLDM1LjY0IEwgOTIuMDAsMzQuMjYgTCA5NC4wMCwzMi43OSBMIDk2LjAwLDMxLjIzIEwgOTguMDAsMjkuNjMgTCAxMDAuMDAsMjguMDAgTCAxMDIuMDAsMjYuMzcgTCAxMDQuMDAsMjQuNzcgTCAxMDYuMDAsMjMuMjEgTCAxMDguMDAsMjEuNzQgTCAxMTAuMDAsMjAuMzYgTCAxMTIuMDAsMTkuMTAgTCAxMTQuMDAsMTcuOTggTCAxMTYuMDAsMTcuMDIgTCAxMTguMDAsMTYuMjQgTCAxMjAuMDAsMTUuNjQgTCAxMjIuMDAsMTUuMjMgTCAxMjQuMDAsMTUuMDMgTCAxMjYuMDAsMTUuMDMgTCAxMjguMDAsMTUuMjMgTCAxMzAuMDAsMTUuNjQgTCAxMzIuMDAsMTYuMjQgTCAxMzQuMDAsMTcuMDIgTCAxMzYuMDAsMTcuOTggTCAxMzguMDAsMTkuMTAgTCAxNDAuMDAsMjAuMzYgTCAxNDIuMDAsMjEuNzQgTCAxNDQuMDAsMjMuMjEgTCAxNDYuMDAsMjQuNzcgTCAxNDguMDAsMjYuMzcgTCAxNTAuMDAsMjguMDAgTCAxNTIuMDAsMjkuNjMgTCAxNTQuMDAsMzEuMjMgTCAxNTYuMDAsMzIuNzkgTCAxNTguMDAsMzQuMjYgTCAxNjAuMDAsMzUuNjQgTCAxNjIuMDAsMzYuOTAgTCAxNjQuMDAsMzguMDIgTCAxNjYuMDAsMzguOTggTCAxNjguMDAsMzkuNzYgTCAxNzAuMDAsNDAuMzYgTCAxNzIuMDAsNDAuNzcgTCAxNzQuMDAsNDAuOTcgTCAxNzYuMDAsNDAuOTcgTCAxNzguMDAsNDAuNzcgTCAxODAuMDAsNDAuMzYgTCAxODIuMDAsMzkuNzYgTCAxODQuMDAsMzguOTggTCAxODYuMDAsMzguMDIgTCAxODguMDAsMzYuOTAgTCAxOTAuMDAsMzUuNjQgTCAxOTIuMDAsMzQuMjYgTCAxOTQuMDAsMzIuNzkgTCAxOTYuMDAsMzEuMjMgTCAxOTguMDAsMjkuNjMgTCAyMDAuMDAsMjguMDAiIGZpbGw9Im5vbmUiIHN0cm9rZT0iIzI0MjQyNCIgc3Ryb2tlLXdpZHRoPSIyLjQiIHN0cm9rZS1saW5lY2FwPSJyb3VuZCIgc3Ryb2tlLWxpbmVqb2luPSJyb3VuZCIvPgogIAogICAgPGcgdHJhbnNmb3JtPSJ0cmFuc2xhdGUoMjUuMDAsMTUuMDApIj4KICAgICAgPHJlY3QgeD0iLTIuOCIgeT0iLTEzIiB3aWR0aD0iNS42IiBoZWlnaHQ9IjQuMiIgcng9IjEiIGZpbGw9IiMyNDI0MjQiLz4KICAgICAgPHBhdGggZD0iTSAwLC05IEMgNC41LC05IDYuNSwtNC41IDYuMiwtMC41IEMgNS45LDQgMyw5LjUgMCwxMy41IEMgLTMsOS41IC01LjksNCAtNi4yLC0wLjUgQyAtNi41LC00LjUgLTQuNSwtOSAwLC05IFoiIGZpbGw9IiNFMDEwMjAiLz4KICAgICAgPGVsbGlwc2UgY3g9Ii0yLjEiIGN5PSItNC41IiByeD0iMS43IiByeT0iMyIgZmlsbD0iI2ZmZmZmZiIgb3BhY2l0eT0iMC40Ii8+CiAgICA8L2c+CiAgICA8ZyB0cmFuc2Zvcm09InRyYW5zbGF0ZSg3NS4wMCw0MS4wMCkiPgogICAgICA8cmVjdCB4PSItMi44IiB5PSItMTMiIHdpZHRoPSI1LjYiIGhlaWdodD0iNC4yIiByeD0iMSIgZmlsbD0iIzI0MjQyNCIvPgogICAgICA8cGF0aCBkPSJNIDAsLTkgQyA0LjUsLTkgNi41LC00LjUgNi4yLC0wLjUgQyA1LjksNCAzLDkuNSAwLDEzLjUgQyAtMyw5LjUgLTUuOSw0IC02LjIsLTAuNSBDIC02LjUsLTQuNSAtNC41LC05IDAsLTkgWiIgZmlsbD0iIzUwQzBEMCIvPgogICAgICA8ZWxsaXBzZSBjeD0iLTIuMSIgY3k9Ii00LjUiIHJ4PSIxLjciIHJ5PSIzIiBmaWxsPSIjZmZmZmZmIiBvcGFjaXR5PSIwLjQiLz4KICAgIDwvZz4KICAgIDxnIHRyYW5zZm9ybT0idHJhbnNsYXRlKDEyNS4wMCwxNS4wMCkiPgogICAgICA8cmVjdCB4PSItMi44IiB5PSItMTMiIHdpZHRoPSI1LjYiIGhlaWdodD0iNC4yIiByeD0iMSIgZmlsbD0iIzI0MjQyNCIvPgogICAgICA8cGF0aCBkPSJNIDAsLTkgQyA0LjUsLTkgNi41LC00LjUgNi4yLC0wLjUgQyA1LjksNCAzLDkuNSAwLDEzLjUgQyAtMyw5LjUgLTUuOSw0IC02LjIsLTAuNSBDIC02LjUsLTQuNSAtNC41LC05IDAsLTkgWiIgZmlsbD0iI0EwQzAzMCIvPgogICAgICA8ZWxsaXBzZSBjeD0iLTIuMSIgY3k9Ii00LjUiIHJ4PSIxLjciIHJ5PSIzIiBmaWxsPSIjZmZmZmZmIiBvcGFjaXR5PSIwLjQiLz4KICAgIDwvZz4KICAgIDxnIHRyYW5zZm9ybT0idHJhbnNsYXRlKDE3NS4wMCw0MS4wMCkiPgogICAgICA8cmVjdCB4PSItMi44IiB5PSItMTMiIHdpZHRoPSI1LjYiIGhlaWdodD0iNC4yIiByeD0iMSIgZmlsbD0iIzI0MjQyNCIvPgogICAgICA8cGF0aCBkPSJNIDAsLTkgQyA0LjUsLTkgNi41LC00LjUgNi4yLC0wLjUgQyA1LjksNCAzLDkuNSAwLDEzLjUgQyAtMyw5LjUgLTUuOSw0IC02LjIsLTAuNSBDIC02LjUsLTQuNSAtNC41LC05IDAsLTkgWiIgZmlsbD0iI0EwMjA4MCIvPgogICAgICA8ZWxsaXBzZSBjeD0iLTIuMSIgY3k9Ii00LjUiIHJ4PSIxLjciIHJ5PSIzIiBmaWxsPSIjZmZmZmZmIiBvcGFjaXR5PSIwLjQiLz4KICAgIDwvZz4KPC9zdmc+');
     background-repeat:repeat-x;
@@ -304,9 +315,9 @@
     letter-spacing:.2px;
   }
   .photo-box{
-    border:2px dashed var(--pine);
+    border:none;
     background:var(--frost);
-    min-height:170px;
+    min-height:85px;
     display:flex;
     align-items:center;
     justify-content:center;
@@ -365,6 +376,9 @@
     border:1.5px dashed var(--gold);
   }
 
+  .accept-block{margin-top:24px;padding-top:14px;border-top:2px solid var(--frost);}
+  .accept-block .label{font-size:10px;letter-spacing:.5px;color:var(--holly-red);font-weight:700;margin-bottom:5px;}
+  .accept-block #pvSigName{font-size:17px;font-weight:700;color:#1a1a1a;}
   .sig-grid{display:flex;gap:40px;margin-top:26px;}
   .sig-line{flex:1;}
   .sig-line .line-rule{border-bottom:1px solid #999;height:28px;}
@@ -373,12 +387,15 @@
   @media print{
     .form-panel,.topbar,.download-bar{display:none;}
     .preview-panel{background:#fff;padding:0;}
-    #quoteDoc{box-shadow:none;max-width:100%;}
+    #quoteDoc{max-width:100%;}
+    .pdf-page{box-shadow:none;margin-bottom:0;page-break-after:always;}
+    .page-label{display:none;}
   }
 
   @media (max-width:940px){
     .preview-panel{padding:14px;}
-    #quoteDoc{padding:24px 20px;}
+    .pdf-page{padding:24px 20px 24px 20px;}
+    .lights-strip{margin:-24px -20px 18px -20px;}
     .doc-header{flex-wrap:wrap;}
     .doc-header .contact{text-align:left;margin-top:8px;}
   }
@@ -472,73 +489,84 @@
   <!-- ============ PREVIEW ============ -->
   <div class="preview-panel">
     <div id="quoteDoc">
-      <div class="lights-strip"></div>
+      <div class="page-label" style="margin-top:0;">Page 1</div>
+      <div class="pdf-page" id="pdfPage1">
+        <div class="lights-strip" id="lightsStrip"></div>
 
-      <div class="doc-header">
-        <img id="docLogo" src="" alt="Sunset Lights">
-        <div class="co">
-          <div class="name">Sunset Lights</div>
-          <div class="tagline">✨ Holiday Lighting Proposal ✨</div>
+        <div class="doc-header">
+          <img id="docLogo" src="" alt="Sunset Lights">
+          <div class="co">
+            <div class="name">Sunset Lights</div>
+            <div class="tagline">✨ Holiday Lighting Proposal ✨</div>
+          </div>
+          <div class="contact">
+            <span class="contact-line">sunset-lights.com</span><br>
+            <span class="contact-line">919-899-9395</span>
+          </div>
         </div>
-        <div class="contact">
-          <span class="contact-line">sunset-lights.com</span><br>
-          <span class="contact-line">919-899-9395</span>
+
+        <div class="info-grid">
+          <div class="block">
+            <div class="label">PREPARED FOR:</div>
+            <div id="pvClient">[Client Name]</div>
+            <div id="pvAddress" style="color:#555;font-size:12px;">[Property Address]</div>
+            <div id="pvContact" style="color:#555;font-size:12px;">[Phone / Email]</div>
+          </div>
+          <div class="block right">
+            <div class="label">PROPOSAL DATE:</div>
+            <div id="pvDate">[Date]</div>
+            <div id="pvNum" style="color:#555;font-size:12px;">Proposal #: [0000]</div>
+            <div style="color:#555;font-size:12px;">Valid for 15 days</div>
+          </div>
         </div>
+
+        <div class="photo-tagline">We Bring the Holiday Magic<br>You Enjoy the Season</div>
+        <div class="photo-box" id="pvPhotoBox">
+          [ Insert property photo / lighting rendering ]
+        </div>
+
+        <div class="sec-heading">What's Included</div>
+        <ul class="bullets" id="pvIncluded"></ul>
       </div>
 
-      <div class="info-grid">
-        <div class="block">
-          <div class="label">PREPARED FOR</div>
-          <div id="pvClient">[Client Name]</div>
-          <div id="pvAddress" style="color:#555;font-size:12px;">[Property Address]</div>
-          <div id="pvContact" style="color:#555;font-size:12px;">[Phone / Email]</div>
+      <div class="page-label">Page 2</div>
+      <div class="pdf-page" id="pdfPage2">
+        <div class="sec-heading" style="margin-top:0;">Pricing</div>
+        <table class="price-table">
+          <thead>
+            <tr>
+              <th>Description</th>
+              <th class="num">Qty</th>
+              <th class="num">Unit Price</th>
+              <th class="num">Total</th>
+            </tr>
+          </thead>
+          <tbody id="pvItemsBody"></tbody>
+          <tfoot>
+            <tr class="subtotal"><td colspan="3">Subtotal</td><td id="pvSubtotal">$0.00</td></tr>
+            <tr class="grand"><td colspan="3">TOTAL</td><td id="pvTotal">$0.00</td></tr>
+          </tfoot>
+        </table>
+
+        <div class="sec-heading">Terms</div>
+        <div class="terms-block" id="pvTerms"></div>
+
+        <div class="thankyou">🎄 Thank you for considering Sunset Lights — we can't wait to make your home glow this season! ✨</div>
+
+        <div class="accept-block">
+          <div class="label">CUSTOMER NAME:</div>
+          <div id="pvSigName">[Client Name]</div>
         </div>
-        <div class="block right">
-          <div class="label">PROPOSAL DATE</div>
-          <div id="pvDate">[Date]</div>
-          <div id="pvNum" style="color:#555;font-size:12px;">Proposal #: [0000]</div>
-          <div style="color:#555;font-size:12px;">Valid for 15 days</div>
-        </div>
-      </div>
 
-      <div class="photo-tagline">We Bring the Holiday Magic.<br>You Enjoy the Season.</div>
-      <div class="photo-box" id="pvPhotoBox">
-        [ Insert property photo / lighting rendering ]
-      </div>
-
-      <div class="sec-heading">Pricing</div>
-      <table class="price-table">
-        <thead>
-          <tr>
-            <th>Description</th>
-            <th class="num">Qty</th>
-            <th class="num">Unit Price</th>
-            <th class="num">Total</th>
-          </tr>
-        </thead>
-        <tbody id="pvItemsBody"></tbody>
-        <tfoot>
-          <tr class="subtotal"><td colspan="3">Subtotal</td><td id="pvSubtotal">$0.00</td></tr>
-          <tr class="grand"><td colspan="3">TOTAL</td><td id="pvTotal">$0.00</td></tr>
-        </tfoot>
-      </table>
-
-      <div class="sec-heading">What's Included</div>
-      <ul class="bullets" id="pvIncluded"></ul>
-
-      <div class="sec-heading">Terms</div>
-      <div class="terms-block" id="pvTerms"></div>
-
-      <div class="thankyou">🎄 Thank you for considering Sunset Lights — we can't wait to make your home glow this season! ✨</div>
-
-      <div class="sig-grid" id="pvSigBlock">
-        <div class="sig-line">
-          <div class="line-rule"></div>
-          <div class="cap">Client Signature &amp; Date</div>
-        </div>
-        <div class="sig-line">
-          <div class="line-rule">Sunset Lights, LLC</div>
-          <div class="cap">Authorized Representative &amp; Date</div>
+        <div class="sig-grid" id="pvSigBlock">
+          <div class="sig-line">
+            <div class="line-rule"></div>
+            <div class="cap">Client Signature &amp; Date</div>
+          </div>
+          <div class="sig-line">
+            <div class="line-rule">Sunset Lights, LLC</div>
+            <div class="cap">Authorized Representative &amp; Date</div>
+          </div>
         </div>
       </div>
 
@@ -716,6 +744,7 @@ $('rooflinePrice').addEventListener('input', e=>{ roofline.price = e.target.valu
 // ---------- Core update ----------
 function updatePreview(){
   $('pvClient').textContent = $('clientName').value.trim() || '[Client Name]';
+  $('pvSigName').textContent = $('clientName').value.trim() || '[Client Name]';
   $('pvAddress').textContent = $('propAddress').value.trim() || '[Property Address]';
   $('pvContact').textContent = $('clientContact').value.trim() || '[Phone / Email]';
   $('pvDate').textContent = fmtDateDisplay($('propDate').value);
@@ -824,27 +853,40 @@ $('downloadBtn').addEventListener('click', async ()=>{
   btn.disabled = true;
   btn.textContent = 'Preparing PDF…';
   try{
-    const node = $('quoteDoc');
-    const canvas = await html2canvas(node, { scale: 2, useCORS:true, backgroundColor:'#ffffff' });
-    const imgData = canvas.toDataURL('image/jpeg', 0.95);
     const { jsPDF } = window.jspdf;
     const pdf = new jsPDF('p','pt','letter');
     const pageWidth = pdf.internal.pageSize.getWidth();
     const pageHeight = pdf.internal.pageSize.getHeight();
-    const imgWidth = pageWidth;
-    const imgHeight = canvas.height * (imgWidth / canvas.width);
 
-    let heightLeft = imgHeight;
-    let position = 0;
+    fitLightsStrip();
 
-    pdf.addImage(imgData, 'JPEG', 0, position, imgWidth, imgHeight);
-    heightLeft -= pageHeight;
+    const pageNodes = [$('pdfPage1'), $('pdfPage2')];
 
-    while(heightLeft > 0){
-      position = heightLeft - imgHeight;
-      pdf.addPage();
-      pdf.addImage(imgData, 'JPEG', 0, position, imgWidth, imgHeight);
-      heightLeft -= pageHeight;
+    for(let i = 0; i < pageNodes.length; i++){
+      const node = pageNodes[i];
+      const canvas = await html2canvas(node, { scale: 2, useCORS:true, backgroundColor:'#ffffff' });
+      const imgData = canvas.toDataURL('image/jpeg', 0.95);
+      const imgWidth = pageWidth;
+      const imgHeight = canvas.height * (imgWidth / canvas.width);
+
+      if(i > 0) pdf.addPage();
+
+      if(imgHeight <= pageHeight){
+        // fits on one page — center it vertically at the top with normal margin
+        pdf.addImage(imgData, 'JPEG', 0, 0, imgWidth, imgHeight);
+      } else {
+        // fallback: content taller than one page, slice it across additional pages
+        let heightLeft = imgHeight;
+        let position = 0;
+        pdf.addImage(imgData, 'JPEG', 0, position, imgWidth, imgHeight);
+        heightLeft -= pageHeight;
+        while(heightLeft > 0){
+          position = heightLeft - imgHeight;
+          pdf.addPage();
+          pdf.addImage(imgData, 'JPEG', 0, position, imgWidth, imgHeight);
+          heightLeft -= pageHeight;
+        }
+      }
     }
 
     const nameSlug = ($('clientName').value.trim() || 'Client').replace(/[^a-z0-9]+/gi,'_');
@@ -858,12 +900,33 @@ $('downloadBtn').addEventListener('click', async ()=>{
   }
 });
 
+// ---------- Lights strip seamless fit ----------
+// Ensures the header light-string tile always divides evenly into the
+// header's rendered width, so a bulb never gets cut off at the edge —
+// in the browser preview or in the captured PDF image.
+function fitLightsStrip(){
+  const el = document.getElementById('lightsStrip');
+  if(!el) return;
+  const containerWidth = el.getBoundingClientRect().width;
+  if(!containerWidth) return;
+  const idealTile = 179; // natural tile width at 1x
+  let n = Math.round(containerWidth / idealTile);
+  if(n < 1) n = 1;
+  const tileWidth = containerWidth / n;
+  const tileHeight = tileWidth * (56 / 200); // matches the SVG viewBox aspect ratio
+  el.style.backgroundSize = tileWidth.toFixed(2) + 'px ' + tileHeight.toFixed(2) + 'px';
+  el.style.height = tileHeight.toFixed(2) + 'px';
+}
+window.addEventListener('resize', fitLightsStrip);
+window.addEventListener('load', fitLightsStrip);
+
 // ---------- Init ----------
 $('propDate').value = todayISO();
 $('includedText').value = DEFAULT_INCLUDED.join('\n');
 $('termsText').value = DEFAULT_TERMS.join('\n');
 renderItemRows();
 updatePreview();
+requestAnimationFrame(fitLightsStrip);
 </script>
 </body>
 </html>
