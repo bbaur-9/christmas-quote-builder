@@ -716,7 +716,7 @@ $('removePhotoBtn').addEventListener('click', (e)=>{
   $('photoActions').style.display = 'none';
   updatePreview();
 });
-const PHOTO_ASPECT = 3.6; // width / height — matches the photo box shape
+const PHOTO_ASPECT = 2.4; // width / height — a gentler crop than before so less of the house gets trimmed
 
 // Pre-crops an uploaded photo to an exact target aspect ratio using a
 // canvas, so the stored image data already has the right shape.
@@ -732,17 +732,22 @@ function cropImageToAspect(imgSrc, aspect){
       const srcRatio = img.width / img.height;
       let sx, sy, sw, sh;
       if(srcRatio > aspect){
-        // source is wider than target — crop left/right
+        // source is wider than target — crop left/right, centered
+        // (house photos are usually already centered horizontally)
         sh = img.height;
         sw = sh * aspect;
         sy = 0;
         sx = (img.width - sw) / 2;
       } else {
-        // source is taller than target — crop top/bottom
+        // source is taller than target — crop top/bottom.
+        // Biased toward the top third rather than dead-center, since
+        // house photos usually have the roofline near the top and
+        // less-important foreground (lawn/driveway) at the bottom —
+        // this keeps the roof intact and trims more from the bottom.
         sw = img.width;
         sh = sw / aspect;
         sx = 0;
-        sy = (img.height - sh) / 2;
+        sy = (img.height - sh) * 0.3;
       }
       const targetWidth = 1200;
       const targetHeight = Math.round(targetWidth / aspect);
