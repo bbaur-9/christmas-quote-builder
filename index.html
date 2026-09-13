@@ -758,6 +758,12 @@ $('clientContact').addEventListener('input', e=>{
   }
   updatePreview();
 });
+$('clientContact').addEventListener('blur', e=>{
+  // Fallback in case a browser autofill/paste didn't fire a normal
+  // input event — re-formats once the field loses focus.
+  e.target.value = formatPhoneNumber(e.target.value);
+  updatePreview();
+});
 
 // ---------- Roofline ----------
 $('rooflineDesc').addEventListener('input', e=>{ roofline.desc = e.target.value; updatePreview(); });
@@ -768,7 +774,7 @@ function updatePreview(){
   $('pvClient').textContent = $('clientName').value.trim() || '[Client Name]';
   $('pvSigName').textContent = $('clientName').value.trim() || '[Client Name]';
   $('pvAddress').textContent = $('propAddress').value.trim() || '[Property Address]';
-  $('pvContact').textContent = $('clientContact').value.trim() || '[Phone / Email]';
+  $('pvContact').textContent = formatPhoneNumber($('clientContact').value.trim()) || '[Phone / Email]';
   $('pvDate').textContent = fmtDateDisplay($('propDate').value);
   $('pvNum').textContent = 'Proposal #: ' + ($('propNum').value.trim() || '[0000]');
 
