@@ -317,7 +317,7 @@
   .photo-box{
     border:none;
     background:var(--frost);
-    min-height:85px;
+    height:120px;
     display:flex;
     align-items:center;
     justify-content:center;
@@ -872,20 +872,17 @@ $('downloadBtn').addEventListener('click', async ()=>{
       if(i > 0) pdf.addPage();
 
       if(imgHeight <= pageHeight){
-        // fits on one page — center it vertically at the top with normal margin
+        // fits on one page — place it at the top
         pdf.addImage(imgData, 'JPEG', 0, 0, imgWidth, imgHeight);
       } else {
-        // fallback: content taller than one page, slice it across additional pages
-        let heightLeft = imgHeight;
-        let position = 0;
-        pdf.addImage(imgData, 'JPEG', 0, position, imgWidth, imgHeight);
-        heightLeft -= pageHeight;
-        while(heightLeft > 0){
-          position = heightLeft - imgHeight;
-          pdf.addPage();
-          pdf.addImage(imgData, 'JPEG', 0, position, imgWidth, imgHeight);
-          heightLeft -= pageHeight;
-        }
+        // Each logical section (page1/page2) is meant to be exactly one
+        // PDF page. If it runs a bit long, scale the whole page down to
+        // fit rather than slicing mid-content across a page break.
+        const scale = pageHeight / imgHeight;
+        const scaledWidth = imgWidth * scale;
+        const scaledHeight = pageHeight;
+        const xOffset = (pageWidth - scaledWidth) / 2;
+        pdf.addImage(imgData, 'JPEG', xOffset, 0, scaledWidth, scaledHeight);
       }
     }
 
