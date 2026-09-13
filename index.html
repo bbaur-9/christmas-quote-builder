@@ -933,6 +933,20 @@ $('resetBtn').addEventListener('click', ()=>{
 });
 
 // ---------- PDF download ----------
+// Waits until every <img> inside a node has fully finished loading/
+// decoding. html2canvas can capture a stale or wrong-sized frame if an
+// image hasn't finished decoding yet, even when its src is already set.
+function waitForImages(node){
+  const imgs = Array.from(node.querySelectorAll('img'));
+  return Promise.all(imgs.map(img=>{
+    if(img.complete && img.naturalWidth > 0) return Promise.resolve();
+    return new Promise(resolve=>{
+      img.addEventListener('load', resolve, { once:true });
+      img.addEventListener('error', resolve, { once:true });
+    });
+  }));
+}
+
 $('downloadBtn').addEventListener('click', async ()=>{
   const btn = $('downloadBtn');
   const original = btn.textContent;
@@ -951,7 +965,11 @@ $('downloadBtn').addEventListener('click', async ()=>{
 
     for(let i = 0; i < pageNodes.length; i++){
       const node = pageNodes[i];
-      const canvas = await html2canvas(node, { scale: 2, useCORS:true, backgroundColor:'#ffffff' });
+      await waitForImages(node);
+      // give the browser one paint cycle to settle the layout we just
+      // adjusted (fitLightsStrip/fitPhotoBox) before html2canvas reads it
+      await new Promise(r => requestAnimationFrame(() => requestAnimationFrame(r)));
+      const canvas = await html2canvas(node, { scale: 2, useCORS:true, allowTaint:true, imageTimeout:15000, backgroundColor:'#ffffff' });
       const imgData = canvas.toDataURL('image/jpeg', 0.95);
       const imgWidth = pageWidth;
       const imgHeight = canvas.height * (imgWidth / canvas.width);
