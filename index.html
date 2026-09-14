@@ -746,16 +746,24 @@ function cropImageToAspect(imgSrc, aspect){
         sw = sh * aspect;
         sy = 0;
         sx = (img.width - sw) / 2;
-      } else {
-        // source is taller than target — crop top/bottom.
-        // Biased toward the top third rather than dead-center, since
-        // house photos usually have the roofline near the top and
-        // less-important foreground (lawn/driveway) at the bottom —
-        // this keeps the roof intact and trims more from the bottom.
+      } else if(srcRatio >= 1){
+        // source is landscape but narrower than the target box —
+        // crop top/bottom, biased toward the top third, since house
+        // photos usually have the roofline near the top and
+        // less-important foreground (lawn/driveway) at the bottom.
         sw = img.width;
         sh = sw / aspect;
         sx = 0;
         sy = (img.height - sh) * 0.3;
+      } else {
+        // source is a portrait-orientation photo (common from phones
+        // held vertically). The "keep the top" bias doesn't make sense
+        // here — a plain center crop is the safer default since we
+        // can't know where the subject sits in a tall frame.
+        sw = img.width;
+        sh = sw / aspect;
+        sx = 0;
+        sy = (img.height - sh) / 2;
       }
       const targetWidth = 1200;
       const targetHeight = Math.round(targetWidth / aspect);
@@ -774,13 +782,23 @@ function cropImageToAspect(imgSrc, aspect){
 $('photoInput').addEventListener('change', (e)=>{
   const file = e.target.files[0];
   if(!file) return;
+  const nameLower = (file.name || '').toLowerCase();
+  const isHeic = file.type === 'image/heic' || file.type === 'image/heif' ||
+                 nameLower.endsWith('.heic') || nameLower.endsWith('.heif');
+  if(isHeic){
+    alert('This looks like a HEIC/HEIF photo (common on iPhone). Browsers can\'t process that format here — please choose "Most Compatible" in your phone\'s camera format settings, or convert the photo to JPG/PNG first, then upload again.');
+    e.target.value = '';
+    return;
+  }
   const reader = new FileReader();
   reader.onload = async ev=>{
     const rawDataUrl = ev.target.result;
     try{
       photoDataUrl = await cropImageToAspect(rawDataUrl, PHOTO_ASPECT);
     }catch(err){
-      photoDataUrl = rawDataUrl; // fallback if cropping fails for any reason
+      alert('That image could not be read. Please try a different photo (JPG or PNG work best).');
+      e.target.value = '';
+      return;
     }
     $('photoPreviewImg').src = photoDataUrl;
     $('photoPreviewImg').style.display = 'block';
