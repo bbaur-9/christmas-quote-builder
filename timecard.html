@@ -1,3 +1,4 @@
+
 <!doctype html>
 <html lang="en">
 <head>
@@ -222,6 +223,11 @@
   .mgr-table td{ text-align:right; padding:4px 6px; font-variant-numeric:tabular-nums; }
   .mgr-totals-line{ display:flex; gap:16px; margin-top:10px; font-size:13.5px; }
   .mgr-totals-line b{ font-variant-numeric:tabular-nums; }
+  .danger-btn{
+    border:1px solid var(--warn); background:var(--warn-bg); color:var(--warn);
+    padding:10px 14px; border-radius:10px; font-size:14px; font-weight:600; cursor:pointer;
+  }
+  .danger-btn:disabled{ opacity:0.55; cursor:default; }
   .mgr-actions{ margin-top:12px; }
 
   .pin-gate{ max-width:320px; margin:60px auto; text-align:center; }
@@ -730,8 +736,8 @@
       totalsLine.innerHTML = 'Regular: <b>'+formatHours(w.regularHours||0)+'</b> &nbsp; Overtime: <b>'+formatHours(w.overtimeHours||0)+'</b> &nbsp; Total: <b>'+formatHours(w.totalHours||0)+'</b>';
       body.appendChild(totalsLine);
 
+      const actions = el('div','mgr-actions');
       if(w.submitted){
-        const actions = el('div','mgr-actions');
         const reopenBtn = el('button','secondary-btn','Reopen for edits');
         reopenBtn.addEventListener('click', function(ev){
           ev.stopPropagation();
@@ -745,8 +751,24 @@
           });
         });
         actions.appendChild(reopenBtn);
-        body.appendChild(actions);
       }
+      const removeBtn = el('button','danger-btn','Remove from crew');
+      removeBtn.addEventListener('click', function(ev){
+        ev.stopPropagation();
+        if(!confirm('Remove '+w.employee+' from the crew list? Past weeks stay in the sheet.')) return;
+        removeBtn.disabled = true;
+        apiPost('removeEmployee', {name: w.employee}).then(function(){
+          employees = employees.filter(function(n){ return n !== w.employee; });
+          if(currentEmployee === w.employee){ currentEmployee = null; }
+          showToast('Removed '+w.employee);
+          loadManagerWeek();
+        }).catch(function(err){
+          showToast('Could not remove: '+err.message);
+          removeBtn.disabled = false;
+        });
+      });
+      actions.appendChild(removeBtn);
+      body.appendChild(actions);
 
       card.appendChild(body);
       head.addEventListener('click', function(){
