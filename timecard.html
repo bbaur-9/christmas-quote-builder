@@ -138,14 +138,41 @@
   .day-date{ color:var(--ink-soft); font-size:13px; }
   .day-hours{ font-weight:700; font-variant-numeric:tabular-nums; font-size:15px; color:var(--navy); }
   @media (prefers-color-scheme: dark){ .day-hours{ color:var(--amber-light); } }
-  .day-card-fields{ display:grid; grid-template-columns:1fr 1fr 0.8fr; gap:8px; }
-  .field{ display:flex; flex-direction:column; gap:4px; min-width:0; }
-  .field-label{ font-size:11px; text-transform:uppercase; letter-spacing:0.05em; color:var(--ink-soft); font-weight:600; }
+  .day-card-fields{
+    display:grid;
+    grid-template-columns:minmax(0,1fr) minmax(0,1fr) minmax(0,0.9fr);
+    gap:12px;
+    align-items:end;
+  }
+  .field{ display:flex; flex-direction:column; gap:6px; min-width:0; }
+  .field-label{
+    font-size:11px; text-transform:uppercase; letter-spacing:0.05em;
+    color:var(--ink-soft); font-weight:600; line-height:1.2;
+  }
   .field input{
-    width:100%; min-width:0; padding:9px 8px; border-radius:8px; border:1px solid var(--line);
-    background:var(--paper); color:var(--ink); font-size:14px; font-variant-numeric:tabular-nums;
+    display:block; width:100%; min-width:0; max-width:100%;
+    padding:10px 10px; border-radius:8px; border:1px solid var(--line);
+    background:var(--paper); color:var(--ink); font-size:16px;
+    font-variant-numeric:tabular-nums; box-sizing:border-box;
+  }
+  /* iOS Safari time inputs have a huge intrinsic width — force them to stay in-cell */
+  .field input[type="time"],
+  .field input[type="number"]{
+    min-width:0; max-width:100%;
+    -webkit-appearance:none; appearance:none;
   }
   .field input:disabled{ opacity:0.6; }
+  @media (max-width: 560px){
+    .day-card-fields{
+      grid-template-columns:minmax(0,1fr) minmax(0,1fr);
+      gap:12px 14px;
+    }
+    .day-card-fields .field:nth-child(3){ grid-column:1 / -1; }
+  }
+  @media (max-width: 380px){
+    .day-card-fields{ grid-template-columns:minmax(0,1fr); }
+    .day-card-fields .field:nth-child(3){ grid-column:auto; }
+  }
 
   /* ---------- Summary bar ---------- */
   .summary-bar{
