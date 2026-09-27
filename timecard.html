@@ -1,4 +1,3 @@
-
 <!doctype html>
 <html lang="en">
 <head>
@@ -321,7 +320,7 @@
       </div>
       <p class="sub" style="margin-top:10px;">Tap a name for the day-by-day breakdown.</p>
       <div id="managerList" class="manager-list"></div>
-      <div class="export-hint">Every submission is a row in your Google Sheet. Open it anytime to sort, filter, or use <b>File → Download → .csv</b> for payroll.</div>
+      <div class="export-hint">Each crew member has their own tab in the Google Sheet with a week-by-week hours tally. Open that tab for payroll, or use <b>File → Download → .csv</b>.</div>
       <button id="backToPicker" class="link-button">← Back</button>
     </section>
 
@@ -516,8 +515,17 @@
       if(dirty) return; // don't clobber unsynced local edits
       if(res.found){
         weekData = res.week;
-      } else {
+      } else if(!(weekData && (weekData.totalHours||0) > 0)){
         weekData = blankWeek(currentEmployee, currentWeekStart);
+      } else {
+        // Local hours exist but server didn't return them — keep + re-push
+        dirty = true;
+        safeSet(key, JSON.stringify(weekData));
+        renderDays();
+        setSyncStatus('Re-syncing local hours…');
+        clearTimeout(saveTimer);
+        saveTimer = setTimeout(pushSave, 300);
+        return;
       }
       safeSet(key, JSON.stringify(weekData));
       renderDays();
@@ -659,7 +667,7 @@
     renderDays();
     apiPost('saveWeek', {week: weekData}).then(function(){
       dirty = false;
-      showToast('Week submitted');
+      showToast('Week submitted — manager notified');
     }).catch(function(err){
       showToast('Could not submit — check your connection and try again');
       weekData.submitted = false;
@@ -777,6 +785,19 @@
       });
       list.appendChild(card);
     });
+
+    var crewTotal = 0, crewReg = 0, crewOt = 0, submittedCount = 0;
+    rows.forEach(function(w){
+      crewTotal += Number(w.totalHours)||0;
+      crewReg += Number(w.regularHours)||0;
+      crewOt += Number(w.overtimeHours)||0;
+      if(w.submitted) submittedCount++;
+    });
+    var tally = el('div','export-hint');
+    tally.innerHTML = '<b>Week total:</b> '+formatHours(crewTotal)+' hrs &nbsp;·&nbsp; Regular '+
+      formatHours(crewReg)+' &nbsp;·&nbsp; OT '+formatHours(crewOt)+
+      ' &nbsp;·&nbsp; '+submittedCount+'/'+rows.length+' submitted';
+    list.appendChild(tally);
   }
 
   // ================= INIT / WIRING =================
