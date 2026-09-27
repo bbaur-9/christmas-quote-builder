@@ -244,6 +244,54 @@
   .setup-banner p{ color:var(--ink-soft); font-size:14.5px; line-height:1.6; }
   .setup-banner code{ background:var(--paper); padding:2px 6px; border-radius:6px; font-size:13px; }
 
+
+  /* ---------- Boot / connecting overlay ---------- */
+  #boot-overlay{
+    position:fixed; inset:0; z-index:100;
+    display:flex; align-items:center; justify-content:center;
+    background:rgba(250,248,244,0.92);
+    padding:24px 16px;
+    transition:opacity 0.18s ease;
+  }
+  #boot-overlay[hidden]{ display:none !important; }
+  @media (prefers-color-scheme: dark){
+    #boot-overlay{ background:rgba(11,27,39,0.94); }
+  }
+  .boot-card{
+    width:min(360px, 100%);
+    background:var(--card);
+    border:1px solid var(--line);
+    border-radius:18px;
+    padding:28px 24px 24px;
+    text-align:center;
+    box-shadow:var(--shadow);
+  }
+  .boot-brand{
+    font-family:'Fraunces', Georgia, serif;
+    font-weight:700; font-size:15px;
+    color:var(--navy);
+    margin-bottom:14px;
+  }
+  @media (prefers-color-scheme: dark){
+    .boot-brand{ color:var(--amber-light); }
+  }
+  .boot-spinner{
+    width:40px; height:40px; margin:0 auto 16px;
+    border-radius:50%;
+    border:3px solid var(--line);
+    border-top-color:var(--amber);
+    animation:boot-spin 0.8s linear infinite;
+  }
+  @keyframes boot-spin{ to{ transform:rotate(360deg); } }
+  .boot-title{
+    font-family:'Fraunces', Georgia, serif;
+    font-weight:700; font-size:20px;
+    color:var(--ink); margin:0 0 8px;
+  }
+  .boot-note{
+    color:var(--ink-soft); font-size:13.5px; line-height:1.45; margin:0;
+  }
+
   .toast{
     position:fixed; left:50%; bottom:calc(90px + env(safe-area-inset-bottom,0px)); transform:translateX(-50%);
     background:var(--navy-deep); color:#fff; padding:10px 18px; border-radius:999px; font-size:13.5px;
@@ -253,6 +301,15 @@
 </style>
 </head>
 <body>
+
+<div id="boot-overlay" role="status" aria-live="polite" aria-busy="true">
+  <div class="boot-card">
+    <div class="boot-brand">Sunset Lights</div>
+    <div class="boot-spinner" aria-hidden="true"></div>
+    <h2 class="boot-title">Connecting to timesheet…</h2>
+    <p class="boot-note">First open can take up to 15 seconds.</p>
+  </div>
+</div>
 
 <div id="app">
   <header class="topbar">
@@ -392,11 +449,43 @@
     clearTimeout(showToast._t);
     showToast._t = setTimeout(()=>t.classList.remove('show'), 2200);
   }
+
+  // ---------- busy overlay (user-facing loads only) ----------
+  let busyCount = 0;
+  function showBusy(message){
+    busyCount++;
+    const ov = $('boot-overlay');
+    if(!ov) return;
+    if(message){
+      const title = ov.querySelector('.boot-title');
+      if(title) title.textContent = message;
+    }
+    ov.hidden = false;
+    ov.setAttribute('aria-busy','true');
+    document.body.style.overflow = 'hidden';
+    const submitBtn = document.querySelector('.summary-bar .primary-btn');
+    if(submitBtn) submitBtn.disabled = true;
+  }
+  function hideBusy(){
+    busyCount = Math.max(0, busyCount - 1);
+    if(busyCount > 0) return;
+    const ov = $('boot-overlay');
+    if(!ov) return;
+    ov.hidden = true;
+    ov.setAttribute('aria-busy','false');
+    document.body.style.overflow = '';
+    const submitBtn = document.querySelector('.summary-bar .primary-btn');
+    if(submitBtn && !(weekData && weekData.submitted)) submitBtn.disabled = false;
+  }
+
   function safeGet(key){ try{ return localStorage.getItem(key); }catch(e){ return null; } }
   function safeSet(key,val){ try{ localStorage.setItem(key,val); }catch(e){} }
 
   // ---------- API ----------
-  function apiGet(action, params){
+  function apiGet(action, params, opts){
+    const busy = !!(opts && opts.busy);
+    const msg = opts && opts.message;
+    if(busy) showBusy(msg || 'Connecting to timesheet…');
     const url = new URL(CONFIG.scriptUrl);
     url.searchParams.set('action', action);
     url.searchParams.set('token', CONFIG.token);
@@ -404,9 +493,12 @@
     return fetch(url.toString()).then(r=>r.json()).then(data=>{
       if(data.error) throw new Error(data.error);
       return data;
-    });
+    }).finally(function(){ if(busy) hideBusy(); });
   }
-  function apiPost(action, payload){
+  function apiPost(action, payload, opts){
+    const busy = !!(opts && opts.busy);
+    const msg = opts && opts.message;
+    if(busy) showBusy(msg || 'Connecting to timesheet…');
     const body = JSON.stringify(Object.assign({action:action, token:CONFIG.token}, payload));
     return fetch(CONFIG.scriptUrl, {
       method:'POST',
@@ -415,7 +507,7 @@
     }).then(r=>r.json()).then(data=>{
       if(data.error) throw new Error(data.error);
       return data;
-    });
+    }).finally(function(){ if(busy) hideBusy(); });
   }
 
   // ================= STATE =================
@@ -511,7 +603,7 @@
     dirty = false;
     renderDays();
 
-    apiGet('getWeek', {employee: currentEmployee, weekStart: isoDate(currentWeekStart)}).then(function(res){
+    apiGet('getWeek', {employee: currentEmployee, weekStart: isoDate(currentWeekStart)}, {busy:true, message:'Loading week…'}).then(function(res){
       if(dirty) return; // don't clobber unsynced local edits
       if(res.found){
         weekData = res.week;
@@ -658,6 +750,8 @@
   }
 
   function submitWeek(){
+    const existingBtn = document.querySelector('.summary-bar .primary-btn');
+    if(existingBtn) existingBtn.disabled = true;
     clearTimeout(saveTimer);
     weekData.submitted = true;
     weekData.submittedAt = new Date().toISOString();
@@ -665,7 +759,7 @@
     const key = 'tc_week_'+slugifyName(currentEmployee)+'_'+isoDate(currentWeekStart);
     safeSet(key, JSON.stringify(weekData));
     renderDays();
-    apiPost('saveWeek', {week: weekData}).then(function(){
+    apiPost('saveWeek', {week: weekData}, {busy:true, message:'Submitting week…'}).then(function(){
       dirty = false;
       showToast('Week submitted — manager notified');
     }).catch(function(err){
@@ -700,7 +794,7 @@
     renderMgrShell();
     const list = $('managerList');
     list.innerHTML = '<p class="empty-note">Loading…</p>';
-    apiGet('getWeekAll', {weekStart: isoDate(mgrWeekStart)}).then(function(res){
+    apiGet('getWeekAll', {weekStart: isoDate(mgrWeekStart)}, {busy:true, message:'Loading manager summary…'}).then(function(res){
       renderManagerList(res.employees || []);
     }).catch(function(err){
       list.innerHTML = '<p class="empty-note">Could not load this week (' + err.message + ').</p>';
@@ -804,6 +898,9 @@
   function init(){
     if(!CONFIG.scriptUrl || CONFIG.scriptUrl.indexOf('PASTE_YOUR') === 0){
       showScreen('setup');
+      const ov = $('boot-overlay');
+      if(ov){ ov.hidden = true; ov.setAttribute('aria-busy','false'); }
+      document.body.style.overflow = '';
       return;
     }
 
@@ -835,6 +932,10 @@
       currentEmployee = null;
       showScreen('picker');
       renderPicker();
+      apiGet('getEmployees', {}, {busy:true, message:'Connecting to timesheet…'}).then(function(res){
+        employees = res.employees || [];
+        renderPicker();
+      }).catch(function(){ /* keep current list */ });
     });
 
     $('weekPrev').addEventListener('click', function(){ openWeek(addDays(currentWeekStart,-7)); });
@@ -852,7 +953,7 @@
     $('mgrPinSubmit').addEventListener('click', checkMgrPin);
     $('mgrPinInput').addEventListener('keydown', function(ev){ if(ev.key==='Enter') checkMgrPin(); });
 
-    apiGet('getEmployees', {}).then(function(res){
+    apiGet('getEmployees', {}, {busy:true, message:'Connecting to timesheet…'}).then(function(res){
       employees = res.employees || [];
       renderPicker();
       const last = safeGet('tc_last_employee');
