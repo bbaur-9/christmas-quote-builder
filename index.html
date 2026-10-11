@@ -4,6 +4,9 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Sunset Lights — Quote Builder</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
 @font-face {
   font-family: "Christmas Comeback";
@@ -34,7 +37,7 @@
   body{
     background:var(--bg);
     color:var(--ink);
-    font-family:'Helvetica Neue', Helvetica, Arial, sans-serif;
+    font-family:'Montserrat', 'Helvetica Neue', Arial, sans-serif;
     -webkit-font-smoothing:antialiased;
   }
   .topbar{
@@ -55,7 +58,7 @@
     margin:0;
     font-weight:600;
     letter-spacing:.2px;
-    font-family:'Helvetica Neue', Helvetica, Arial, sans-serif;
+    font-family:'Montserrat', 'Helvetica Neue', Arial, sans-serif;
   }
   .topbar .sub{
     font-size:11px;
@@ -78,20 +81,16 @@
     background:var(--panel);
     padding:22px 22px 100px 22px;
     border-right:1px solid var(--line);
-    font-family:'Helvetica Neue', Helvetica, Arial, sans-serif;
+    font-family:'Montserrat', 'Helvetica Neue', Arial, sans-serif;
     overflow-y:auto;
   }
   .form-panel h2{
-    font-family:'Helvetica Neue', Helvetica, Arial, sans-serif;
+    font-family:'Montserrat', 'Helvetica Neue', Arial, sans-serif;
     font-size:15px;
     color:var(--pine);
     margin:26px 0 10px 0;
     padding-bottom:6px;
     border-bottom:1px solid var(--line);
-  }
-  .form-panel h2::before{
-    content:"❆ ";
-    color:var(--holly-red);
   }
   .form-panel h2:first-of-type{margin-top:0;}
   label{
@@ -107,7 +106,7 @@
     border:1px solid #D6D3CC;
     border-radius:6px;
     font-size:14px;
-    font-family:'Helvetica Neue', Helvetica, Arial, sans-serif;
+    font-family:'Montserrat', 'Helvetica Neue', Arial, sans-serif;
     background:#FCFCFB;
     color:var(--ink);
   }
@@ -212,7 +211,7 @@
     font-size:13px;
   }
   .totals-preview .line{display:flex;justify-content:space-between;padding:3px 0;}
-  .totals-preview .grand{font-weight:800;color:var(--pine);border-top:1px solid #E7D5AE;margin-top:6px;padding-top:8px;font-size:15px;}
+  .totals-preview .grand{font-weight:700;color:var(--pine);border-top:1px solid #E7D5AE;margin-top:6px;padding-top:8px;font-size:15px;}
 
   .download-bar{
     position:sticky;
@@ -232,7 +231,7 @@
     font-size:14px;
     font-weight:700;
     cursor:pointer;
-    font-family:'Helvetica Neue', Helvetica, Arial, sans-serif;
+    font-family:'Montserrat', 'Helvetica Neue', Arial, sans-serif;
   }
   .btn-primary{background:var(--holly-red);color:#fff;}
   .btn-primary:hover{background:#a01829;}
@@ -260,7 +259,7 @@
   #quoteDoc{
     width:100%;
     max-width:700px;
-    font-family:'Helvetica Neue', Helvetica, Arial, sans-serif;
+    font-family:'Montserrat', 'Helvetica Neue', Arial, sans-serif;
     color:#1a1a1a;
   }
   .pdf-page{
@@ -275,9 +274,6 @@
   .page-content{
     padding:36px 46px 44px 46px;
   }
-  .page-content.has-lights{
-    padding-top:18px;
-  }
   .page-label{
     text-align:center;
     color:rgba(255,255,255,0.55);
@@ -286,24 +282,13 @@
     text-transform:uppercase;
     margin:-16px 0 10px 0;
   }
-  .lights-strip{
-    width:100%;
-    line-height:0;
-    margin:0 0 18px 0;
-  }
-  .lights-strip img{
-    width:100%;
-    height:auto;
-    aspect-ratio:800/56;
-    display:block;
-  }
   .doc-header{display:flex;align-items:center;gap:16px;border-bottom:3px solid var(--gold);padding-bottom:16px;padding-top:2px;}
   .doc-header img{width:66px;height:66px;border-radius:50%;flex-shrink:0;}
   .doc-header .co{flex:1;}
-  .doc-header .co .name{font-size:28px;font-weight:800;color:var(--pine);line-height:1.1;letter-spacing:-.3px;}
+  .doc-header .co .name{font-size:28px;font-weight:700;color:var(--pine);line-height:1.1;letter-spacing:-.3px;}
   .doc-header .co .tagline{font-size:13px;font-weight:600;color:var(--holly-red);margin-top:3px;}
-  .doc-header .contact{text-align:right;font-family:'Helvetica Neue', Helvetica, Arial, sans-serif;line-height:1.7;}
-  .doc-header .contact .contact-line{font-size:16px;font-weight:800;color:var(--pine);}
+  .doc-header .contact{text-align:right;font-family:'Montserrat', 'Helvetica Neue', Arial, sans-serif;line-height:1.7;}
+  .doc-header .contact .contact-line{font-size:16px;font-weight:700;color:var(--pine);}
 
   .info-grid{display:flex;justify-content:space-between;margin-top:18px;font-size:13px;}
   .info-grid .label{font-size:10px;letter-spacing:.5px;color:var(--holly-red);font-weight:700;}
@@ -312,7 +297,7 @@
 
   .sec-heading{
     font-size:14px;
-    font-weight:800;
+    font-weight:700;
     color:var(--pine);
     text-transform:uppercase;
     letter-spacing:.3px;
@@ -320,10 +305,6 @@
     padding-bottom:6px;
     margin-top:26px;
     margin-bottom:12px;
-  }
-  .sec-heading::before{
-    content:"❆ ";
-    color:var(--holly-red);
   }
 
   .photo-tagline{
@@ -378,13 +359,13 @@
   table.price-table tfoot tr.grand td{
     background:var(--holly-red);
     color:#fff;
-    font-weight:800;
+    font-weight:700;
     font-size:15px;
   }
 
   ul.bullets{margin:0;padding:0;list-style:none;font-size:13px;}
   ul.bullets li{padding:4px 0;padding-left:20px;position:relative;}
-  ul.bullets li::before{content:"✦";color:var(--holly-red);font-weight:700;position:absolute;left:0;}
+  ul.bullets li::before{content:"";width:6px;height:6px;border-radius:50%;background:var(--holly-red);position:absolute;left:4px;top:11px;}
 
   .terms-block p{font-size:12px;color:#444;line-height:1.6;margin:0 0 6px 0;}
 
@@ -424,7 +405,6 @@
   @media (max-width:940px){
     .preview-panel{padding:14px;}
     .page-content{padding:24px 20px 24px 20px;}
-    .page-content.has-lights{padding-top:18px;}
     .doc-header{flex-wrap:wrap;}
     .doc-header .contact{text-align:left;margin-top:8px;}
   }
@@ -435,8 +415,8 @@
 <div class="topbar">
   <img id="topLogo" src="" alt="Sunset Lights">
   <div>
-    <h1>Sunset Lights — Holiday Quote Builder ✨</h1>
-    <div class="sub">Fill it out, preview the magic, download the PDF</div>
+    <h1>Sunset Lights — Holiday Quote Builder</h1>
+    <div class="sub">Client proposal · Live preview · Export PDF</div>
   </div>
 </div>
 
@@ -516,7 +496,7 @@
 
     <div class="download-bar">
       <button class="btn btn-secondary" id="resetBtn">Reset</button>
-      <button class="btn btn-primary" id="downloadBtn">🎁 Download PDF</button>
+      <button class="btn btn-primary" id="downloadBtn">Download PDF</button>
     </div>
   </div>
 
@@ -531,7 +511,7 @@
           <img id="docLogo" src="" alt="Sunset Lights">
           <div class="co">
             <div class="name">Sunset Lights</div>
-            <div class="tagline">✨ Holiday Lighting Proposal ✨</div>
+            <div class="tagline">Holiday Lighting Proposal</div>
           </div>
           <div class="contact">
             <span class="contact-line">sunset-lights.com</span><br>
@@ -587,7 +567,7 @@
         <div class="sec-heading">Terms</div>
         <div class="terms-block" id="pvTerms"></div>
 
-        <div class="thankyou">🎄 Thank you for considering Sunset Lights — we can't wait to make your home glow this season! ✨</div>
+        <div class="thankyou">Thank you for considering Sunset Lights. We look forward to lighting your home this season.</div>
 
         <div class="accept-block">
           <div class="label">CUSTOMER NAME:</div>
@@ -1101,6 +1081,7 @@ $('downloadBtn').addEventListener('click', async ()=>{
     // otherwise the PDF can silently fall back to a generic font.
     try{
       await document.fonts.load('40px "Christmas Comeback"');
+      await Promise.all(['400','500','600','700'].map(w=>document.fonts.load(w+' 16px "Montserrat"')));
       await document.fonts.ready;
     }catch(e){ /* non-fatal — falls back to default font if this fails */ }
 
