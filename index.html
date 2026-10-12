@@ -237,6 +237,16 @@
   .btn-primary:hover{background:#a01829;}
   .btn-secondary{background:none;border:1px solid #C7C4BC;color:var(--gray);flex:0 0 90px;}
   .btn:disabled{opacity:.6;cursor:wait;}
+  .download-bar .btn{white-space:nowrap;padding:13px 8px;font-size:13px;}
+  .download-bar .btn-secondary{flex:0 0 74px;}
+  .btn-jobber{background:var(--pine);color:#fff;}
+  .btn-jobber:hover{background:var(--pine-dark);}
+  .jobber-status{font-size:13px;margin:16px 0 0 0;padding:10px 12px;border-radius:6px;display:none;line-height:1.45;}
+  .jobber-status.show{display:block;}
+  .jobber-status.ok{background:var(--frost);color:var(--pine);border:1px solid #BFE0CF;}
+  .jobber-status.err{background:#FDECEE;color:#9B1C2C;border:1px solid #F3C2C9;}
+  .jobber-status a{color:inherit;font-weight:700;}
+  .jobber-status button{font:inherit;font-size:12px;background:none;border:none;color:inherit;text-decoration:underline;cursor:pointer;padding:0;margin-left:6px;}
 
   /* ---------- PREVIEW PANEL ---------- */
   .preview-panel{
@@ -435,6 +445,9 @@
     <label for="clientContact">Phone / email</label>
     <input type="text" id="clientContact" placeholder="(919) 555-0134">
 
+    <label for="clientEmail">Client email <span style="font-weight:400;color:var(--gray);">(for Jobber, not shown on proposal)</span></label>
+    <input type="email" id="clientEmail" placeholder="john@example.com" autocomplete="off">
+
     <div class="row2">
       <div>
         <label for="propDate">Proposal date</label>
@@ -494,8 +507,10 @@
       <label for="sigToggle">Include signature lines</label>
     </div>
 
+    <div class="jobber-status" id="jobberStatus" role="status" aria-live="polite"></div>
     <div class="download-bar">
       <button class="btn btn-secondary" id="resetBtn">Reset</button>
+      <button class="btn btn-jobber" id="jobberBtn" type="button">Send to Jobber</button>
       <button class="btn btn-primary" id="downloadBtn">Download PDF</button>
     </div>
   </div>
@@ -1024,6 +1039,8 @@ function resetForm(){
   $('clientName').value='';
   $('propAddress').value='';
   $('clientContact').value='';
+  $('clientEmail').value='';
+  setJobberStatus('');
   $('propDate').value = todayISO();
   $('propNum').value='';
   $('sigToggle').checked=true;
@@ -1046,6 +1063,115 @@ function resetForm(){
   renderItemRows();
   updatePreview();
 }
+// ---------- Send to Jobber ----------
+// Google Apps Script "Jobber Quote Bridge" web app URL (ends in /exec).
+// Leave empty to show "not set up". See jobber-bridge/SETUP.md.
+const JOBBER_BRIDGE_URL = 'https://script.google.com/macros/s/AKfycbw-OZcmsQVB5K1D_A1W9m0BykRvT7ednUFM_1g_wWj_zyMcKefTRjozkAAO-ed9b5i7/exec';
+const JOBBER_KEY_STORAGE = 'sl_jobber_bridge_pin';
+
+function setJobberStatus(html, kind){
+  const el = $('jobberStatus');
+  el.className = 'jobber-status' + (html ? ' show ' + (kind||'ok') : '');
+  el.innerHTML = html || '';
+}
+function splitName(full){
+  const t = String(full||'').trim().replace(/\s+/g,' ');
+  if(!t) return { firstName:'', lastName:'' };
+  const i = t.lastIndexOf(' ');
+  return i < 0 ? { firstName:t, lastName:'' } : { firstName:t.slice(0,i), lastName:t.slice(i+1) };
+}
+function buildJobberPayload(){
+  const name = splitName($('clientName').value);
+  const contact = $('clientContact').value.trim();
+  const emailInContact = (contact.match(/[^\s@]+@[^\s@]+\.[^\s@]+/)||[''])[0];
+  const email = $('clientEmail').value.trim() || emailInContact;
+  const phoneDigits = contact.replace(emailInContact,'').replace(/\D/g,'');
+  const lines = [];
+  const rfPrice = parseFloat(roofline.price);
+  if(!isNaN(rfPrice)){
+    const d = roofline.desc || DEFAULT_ROOFLINE_DESC;
+    lines.push({ kind:'roofline', name:d, description:d, qty:1, unitPrice:rfPrice });
+  }
+  items.forEach(it=>{
+    const price = parseFloat(it.price);
+    if(isNaN(price)) return;
+    const qty = it.pkg ? 1 : parseFloat(it.qty);
+    if(!it.pkg && isNaN(qty)) return;
+    const d = (it.desc||'').trim() || 'Item';
+    lines.push({ name:d, description:d, qty:qty, unitPrice:price });
+  });
+  const disc = discounts.filter(d=>parseFloat(d.amount) > 0)
+    .map(d=>({ description:(d.desc||'').trim(), amount:parseFloat(d.amount), type:d.type==='%'?'%':'$' }));
+  const included = $('includedText').value.split('\n').map(s=>s.trim()).filter(Boolean);
+  const terms = $('termsText').value.split('\n').map(s=>s.trim()).filter(Boolean);
+  const num = $('propNum').value.trim();
+  return {
+    title: 'Holiday Lighting Proposal' + (num ? ' #' + num : ''),
+    client: { firstName:name.firstName, lastName:name.lastName, email:email,
+              phone: phoneDigits.length >= 10 ? formatPhoneNumber(phoneDigits) : '',
+              address: $('propAddress').value.trim() },
+    lineItems: lines,
+    discounts: disc,
+    message: included.length ? "What's included:\n- " + included.join('\n- ') : '',
+    terms: terms.join('\n'),
+    internalNote: 'Created from the Sunset Lights Holiday Quote Builder' + (num ? ' (proposal #' + num + ')' : '') + '.'
+  };
+}
+async function postToBridge(body){
+  // text/plain keeps this a "simple" CORS request: no preflight, which
+  // Apps Script web apps can't answer.
+  const res = await fetch(JOBBER_BRIDGE_URL, {
+    method:'POST', redirect:'follow',
+    headers:{ 'Content-Type':'text/plain;charset=utf-8' },
+    body: JSON.stringify(body)
+  });
+  const text = await res.text();
+  try { return JSON.parse(text); }
+  catch(e){ throw new Error('The Jobber bridge returned an unexpected response (' + res.status + '). Check that it is deployed with access "Anyone".'); }
+}
+function askPin(msg){
+  const pin = prompt(msg || 'Enter the Jobber bridge PIN (saved on this device):');
+  if(pin === null) return null;
+  const t = pin.trim();
+  if(t) localStorage.setItem(JOBBER_KEY_STORAGE, t);
+  return t || null;
+}
+$('jobberBtn').addEventListener('click', async ()=>{
+  if(!JOBBER_BRIDGE_URL){
+    setJobberStatus('Send to Jobber is not set up yet. Add the bridge URL (JOBBER_BRIDGE_URL) to the builder — see SETUP.md.', 'err');
+    return;
+  }
+  const quote = buildJobberPayload();
+  if(!quote.client.firstName && !quote.client.lastName){ setJobberStatus('Enter the client name first.', 'err'); return; }
+  if(!quote.lineItems.length){ setJobberStatus('Add at least one priced line item first.', 'err'); return; }
+  let key = localStorage.getItem(JOBBER_KEY_STORAGE) || askPin();
+  if(!key) return;
+  const btn = $('jobberBtn'); const label = btn.textContent;
+  btn.disabled = true; btn.textContent = 'Sending…';
+  setJobberStatus('Creating a draft quote in Jobber…', 'ok');
+  try{
+    let r = await postToBridge({ key, quote });
+    if(r && r.code === 'BAD_KEY'){
+      localStorage.removeItem(JOBBER_KEY_STORAGE);
+      key = askPin('That PIN was not accepted. Enter the Jobber bridge PIN:');
+      if(!key){ setJobberStatus('Not sent: the bridge PIN is needed.', 'err'); return; }
+      r = await postToBridge({ key, quote });
+    }
+    if(r && r.ok){
+      const who = r.plan && r.plan.client ? escapeHtml(r.plan.client.name) + (r.plan.client.created ? ' (new client)' : '') : '';
+      setJobberStatus(`Draft quote${r.quoteNumber ? ' #' + escapeHtml(r.quoteNumber) : ''} created in Jobber${who ? ' for ' + who : ''}. It has not been sent to the client.<br>` +
+        (r.url ? `<a href="${escapeAttr(r.url)}" target="_blank" rel="noopener">Open quote in Jobber</a>` : ''), 'ok');
+    } else {
+      if(r && r.code === 'BAD_KEY') localStorage.removeItem(JOBBER_KEY_STORAGE);
+      setJobberStatus('Jobber: ' + escapeHtml((r && r.error) || 'Unknown error.'), 'err');
+    }
+  }catch(err){
+    setJobberStatus('Could not reach the Jobber bridge: ' + escapeHtml(err.message || String(err)), 'err');
+  }finally{
+    btn.disabled = false; btn.textContent = label;
+  }
+});
+
 $('resetBtn').addEventListener('click', ()=>{
   if(confirm('Reset the form and clear all fields?')) resetForm();
 });
