@@ -633,7 +633,7 @@ const DEFAULT_ROOFLINE_DESC = "Warm White C9 Roofline Lighting";
 let roofline = { desc:DEFAULT_ROOFLINE_DESC, price:"" };
 let discounts = []; // {desc, amount, type:'$'|'%'}
 let items = [
-  { desc:"Wreaths & garland", qty:"", price:"", pkg:false }
+  { desc:"Wreaths & garland", qty:"1", price:"", pkg:false }
 ];
 let photoDataUrl = null;
 
@@ -656,6 +656,11 @@ function fmtDateDisplay(iso){
 }
 
 // ---------- Line items ----------
+// Blank qty counts as 1 everywhere (totals, preview, PDF, Jobber).
+function itemQty(it){
+  const t = String(it.qty === undefined || it.qty === null ? '' : it.qty).trim();
+  return t === '' ? 1 : parseFloat(t);
+}
 function renderItemRows(){
   const wrap = $('itemRows');
   wrap.innerHTML = '';
@@ -722,7 +727,7 @@ function renderItemRows(){
 }
 
 $('addItemBtn').addEventListener('click', ()=>{
-  items.push({desc:"", qty:"", price:"", pkg:false});
+  items.push({desc:"", qty:"1", price:"", pkg:false});
   renderItemRows();
   updatePreview();
 });
@@ -986,14 +991,14 @@ function updatePreview(){
         <td class="num">${hasPrice ? fmtMoney(pkgPrice) : '—'}</td>
       `;
     } else {
-      const qty = parseFloat(it.qty);
+      const qty = itemQty(it);
       const price = parseFloat(it.price);
       const hasNumbers = !isNaN(qty) && !isNaN(price);
       const lineTotal = hasNumbers ? qty*price : NaN;
       if(hasNumbers) subtotal += lineTotal;
       tr.innerHTML = `
         <td>${escapeHtml(it.desc || '[Item]')}</td>
-        <td class="num">${it.qty !== '' ? escapeHtml(it.qty) : '—'}</td>
+        <td class="num">${!isNaN(qty) ? escapeHtml(String(it.qty).trim() || '1') : '—'}</td>
         <td class="num">${it.price !== '' && !isNaN(price) ? fmtMoney(price) : '—'}</td>
         <td class="num">${hasNumbers ? fmtMoney(lineTotal) : '—'}</td>
       `;
@@ -1050,7 +1055,7 @@ function resetForm(){
   $('rooflineDesc').value=DEFAULT_ROOFLINE_DESC;
   $('rooflinePrice').value='';
   items = [
-    { desc:"Wreaths & garland", qty:"", price:"", pkg:false }
+    { desc:"Wreaths & garland", qty:"1", price:"", pkg:false }
   ];
   discounts = [];
   renderDiscRows();
@@ -1095,7 +1100,7 @@ function buildJobberPayload(){
   items.forEach(it=>{
     const price = parseFloat(it.price);
     if(isNaN(price)) return;
-    const qty = it.pkg ? 1 : parseFloat(it.qty);
+    const qty = it.pkg ? 1 : itemQty(it);
     if(!it.pkg && isNaN(qty)) return;
     const d = (it.desc||'').trim() || 'Item';
     lines.push({ name:d, description:d, qty:qty, unitPrice:price });
